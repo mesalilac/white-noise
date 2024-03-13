@@ -200,17 +200,34 @@ int main()
 
         {
             float grip_value = gen.step_time / (STEP_TIME_MAX - STEP_TIME_MIN) * STEP_TIME_SLIDER_LEN;
-
             SDL_SetRenderDrawColor(renderer, HEXCOLOR(dragging_grip == true ? STEP_TIME_SLIDER_GRIP_DRAGGING_COLOR
                                                                             : STEP_TIME_SLIDER_GRIP_COLOR));
-            SDL_Rect rect = {
+
+            // Fill slider till grip_value
+            {
+                // [------()      ]
+                // [----------()  ]
+                // inside of
+                // [  ()          ]
+                SDL_SetRenderDrawColor(renderer, HEXCOLOR(STEP_TIME_SLIDER_GRIP_COLOR));
+                SDL_Rect rect = {
+                    .x = STEP_TIME_SLIDER_X,
+                    .y = STEP_TIME_SLIDER_Y - STEP_TIME_SLIDER_THICNESS * 0.5f,
+                    .w = grip_value,
+                    .h = STEP_TIME_SLIDER_THICNESS,
+
+                };
+                SDL_RenderFillRect(renderer, &rect);
+            }
+
+            SDL_Rect slider_grip_rect = {
                 .x = STEP_TIME_SLIDER_X - STEP_TIME_SLIDER_GRIP_SIZE + grip_value,
                 .y = STEP_TIME_SLIDER_Y - STEP_TIME_SLIDER_GRIP_SIZE,
                 .w = STEP_TIME_SLIDER_GRIP_SIZE * 2.0f,
                 .h = STEP_TIME_SLIDER_GRIP_SIZE * 2.0f,
             };
 
-            SDL_RenderFillRect(renderer, &rect);
+            SDL_RenderFillRect(renderer, &slider_grip_rect);
 
             int x, y;
             Uint32 buttons = SDL_GetMouseState(&x, &y);
@@ -218,7 +235,7 @@ int main()
             if (!dragging_grip)
             {
                 SDL_Point cursor = {x, y};
-                if (SDL_PointInRect(&cursor, &rect) && (buttons & SDL_BUTTON_LMASK) != 0)
+                if (SDL_PointInRect(&cursor, &slider_grip_rect) && (buttons & SDL_BUTTON_LMASK) != 0)
                 {
                     dragging_grip = true;
                 }
